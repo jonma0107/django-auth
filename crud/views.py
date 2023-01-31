@@ -1,14 +1,37 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.http import HttpResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import login, logout, authenticate
+from .forms import TaskForm
+from .models import Task
+
 
 def home(request):
   return render(request, 'home.html')
 
 def tasks(request):
-  return render(request, 'tasks.html')
+  lista = Task.objects.filter(user=request.user)
+  return render(request, 'tasks.html', {'objetos': lista})
+
+def create_task(request):
+  if request.method == 'GET':
+    return render(request, 'create_task.html', {
+    'form': TaskForm
+    })
+  else:
+    if request.POST['description'] == '':
+      create = render(request, 'create_task.html', {
+        'form': TaskForm,
+        'error': 'la descripcion debe llenarse'
+        })
+      return create
+      
+    else:
+      form = TaskForm(request.POST)
+      task_new = form.save(commit=False)
+      task_new.user = request.user
+      task_new.save()
+      return redirect('tasks')  
 
 def signup(request):
   if request.method == 'GET':
@@ -31,7 +54,6 @@ def signup(request):
       "form": UserCreationForm,
       "error": 'contraseñas erradas'
       })
-
 
 def cerrar(request):
   logout(request)

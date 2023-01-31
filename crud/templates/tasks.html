@@ -1,5 +1,26 @@
 {% extends 'base.html' %}
 
-{% block content %}
-<h1>TASKS</h1>
+{% block content%}
+
+<h1>TAREAS</h1>
+
+
+<ul>
+  {% for objeto in objetos %}
+  <li>
+    <h1>Tarea: </h1>
+    {% if objeto.important %}
+      <h1 style="color: red;"><b>{{objeto.title}}</b></h1>
+    {% else %}
+    <h1 style="color: green;"><b>{{objeto.title}}</b></h1>
+    {% endif %}
+    <h1>Descripcion: </h1>
+    <h2>{{objeto.description}}</h2>
+    <h1>Autor: </h1>
+    <h2>{{objeto.user.username}}</h2>
+    <p>{{objeto.important}}</p>
+  </li>
+  {% endfor %}
+</ul>
+
 {% endblock %}
