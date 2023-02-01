@@ -1,0 +1,27 @@
+{% extends 'base.html'%}
+
+{% block content %}
+  <h1>DETALLE DE TAREA</h1>
+
+  <h1 style="color: green;">Tarea: {{task.title}}</h1>
+  <h2 style="color: green;">Descripcion: {{task.description}}</h2>
+  <h2 style="color: green;">Autor: {{task.user.username}}</h2>
+
+  {% if error %}
+
+  <div id="error">{{error}}</div>
+  <script>
+    setTimeout(function() {
+      document.querySelector("#error").style.display = "none";
+    }, 5000);
+  </script>
+
+  {% endif %} 
+
+  <form action="" method="POST">
+    {% csrf_token %}
+    {{form.as_p}}
+    <button>Actualizar</button>
+  </form>
+
+{% endblock %}

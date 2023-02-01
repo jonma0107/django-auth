@@ -4,21 +4,25 @@
 
 <h1>TAREAS</h1>
 
-
 <ul>
-  {% for objeto in objetos %}
+  {% for object in objects %}
   <li>
     <h1>Tarea: </h1>
-    {% if objeto.important %}
-      <h1 style="color: red;"><b>{{objeto.title}}</b></h1>
-    {% else %}
-    <h1 style="color: green;"><b>{{objeto.title}}</b></h1>
-    {% endif %}
+    <a href="{% url 'task_detail' object.id %}">
+      {% if object.important %}
+      <h2 style="color: red;"><b>{{object.title}}</b></h2>
+      {% else %}
+      <h2 style="color: green;"><b>{{object.title}}</b></h2>
+      {% endif %}
+    </a>  
     <h1>Descripcion: </h1>
-    <h2>{{objeto.description}}</h2>
+    <a href="{% url 'task_detail' object.id %}">
+      <p>{{object.description}}</p>
+    </a>
     <h1>Autor: </h1>
-    <h2>{{objeto.user.username}}</h2>
-    <p>{{objeto.important}}</p>
+    <p>{{object.user.username}}</p>
+    <p>{{object.important}}</p>
+    
   </li>
   {% endfor %}
 </ul>

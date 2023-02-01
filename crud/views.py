@@ -1,9 +1,9 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django.contrib.auth import login, logout, authenticate
 from .forms import TaskForm
-from .models import Task
+from .models import *
 
 
 def home(request):
@@ -11,7 +11,7 @@ def home(request):
 
 def tasks(request):
   lista = Task.objects.filter(user=request.user)
-  return render(request, 'tasks.html', {'objetos': lista})
+  return render(request, 'tasks.html', {'objects': lista})
 
 def create_task(request):
   if request.method == 'GET':
@@ -55,22 +55,43 @@ def signup(request):
       "error": 'contraseñas erradas'
       })
 
-def cerrar(request):
+def close_sesion(request):
   logout(request)
   return redirect("home")
 
-def abrir(request):
+def open_sesion(request):
   if request.method == 'GET':
-    return render(request, 'abrir.html', {
+    return render(request, 'open_sesion.html', {
     'form': AuthenticationForm
     })
   else:
     user = authenticate(request, username=request.POST['username'], password=request.POST['password'])
     if user is None:
-      return render(request, 'abrir.html', {'form': AuthenticationForm, 'error': 'Credenciales no validas'})
+      return render(request, 'open_sesion.html', {'form': AuthenticationForm, 'error': 'Credenciales no validas'})
     else:
       login(request, user)
       return redirect('tasks')
+
+# OBTENER y ACTUALIZAR TAREA
+def task_detail(request, task_id):
+  if request.method == 'GET':
+    # task = Task.objects.get(pk=task_id)
+    task = get_object_or_404(Task, pk=task_id, user=request.user) #se pasa el modelo a consultar (Task) y se obtiene la tarea
+    form = TaskForm(instance = task)
+    return render(request, 'task_detail.html', { 'task': task, 'form': form })
+  else:
+      if request.POST['description'] == '':
+        task = get_object_or_404(Task, pk=task_id, user=request.user) #obtener nuevamente la tarea porque 'else' ya es otro bloque
+        form = TaskForm(request.POST, instance = task)
+        return render(request, 'task_detail.html', { 'task': task, 'form': form, 'error': 'La descripcion no debe estar vacía' })
+      else:
+        try:
+          task = get_object_or_404(Task, pk=task_id, user=request.user) #obtener nuevamente la tarea porque 'else' ya es otro bloque
+          form = TaskForm(request.POST, instance = task)#obtiene todos los datos : request.POST
+          form.save()
+          return redirect('tasks')
+        except ErrorValue:
+          return render(request, 'task_detail.html', { 'task': task, 'form': form, 'error': 'Error al actualizar' })      
 
 
 

@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from .views import cerrar, abrir, create_task
+from .views import close_sesion, open_sesion, create_task, task_detail
 
 
 
@@ -9,7 +9,8 @@ urlpatterns = [
   path('signup/', views.signup, name="signup"),
   path('tasks/', views.tasks, name="tasks"),
   path('tasks/create/', views.create_task, name="create_task"),
-  path('logout/', views.cerrar, name="logout"),
-  path('signin/', views.abrir, name="signin")
+  path('tasks/<int:task_id>/', views.task_detail, name="task_detail"),
+  path('logout/', views.close_sesion, name="logout"),
+  path('signin/', views.open_sesion, name="signin")
 ]
 
