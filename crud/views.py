@@ -4,13 +4,13 @@ from django.contrib.auth.models import User
 from django.contrib.auth import login, logout, authenticate
 from .forms import TaskForm
 from .models import *
-
+from django.utils import timezone
 
 def home(request):
   return render(request, 'home.html')
 
 def tasks(request):
-  lista = Task.objects.filter(user=request.user)
+  lista = Task.objects.filter(user=request.user, completed__isnull=True)
   return render(request, 'tasks.html', {'objects': lista})
 
 def create_task(request):
@@ -22,16 +22,16 @@ def create_task(request):
     if request.POST['description'] == '':
       create = render(request, 'create_task.html', {
         'form': TaskForm,
-        'error': 'la descripcion debe llenarse'
+        'error': 'la descripción debe llenarse'
         })
       return create
-      
+
     else:
       form = TaskForm(request.POST)
       task_new = form.save(commit=False)
       task_new.user = request.user
       task_new.save()
-      return redirect('tasks')  
+      return redirect('tasks')
 
 def signup(request):
   if request.method == 'GET':
@@ -67,7 +67,7 @@ def open_sesion(request):
   else:
     user = authenticate(request, username=request.POST['username'], password=request.POST['password'])
     if user is None:
-      return render(request, 'open_sesion.html', {'form': AuthenticationForm, 'error': 'Credenciales no validas'})
+      return render(request, 'open_sesion.html', {'form': AuthenticationForm, 'error': 'Credenciales no válidas'})
     else:
       login(request, user)
       return redirect('tasks')
@@ -91,7 +91,20 @@ def task_detail(request, task_id):
           form.save()
           return redirect('tasks')
         except ErrorValue:
-          return render(request, 'task_detail.html', { 'task': task, 'form': form, 'error': 'Error al actualizar' })      
+          return render(request, 'task_detail.html', { 'task': task, 'form': form, 'error': 'Error al actualizar' })
+
+# TAREA COMPLETADA : ELIMINADA
+def completed_task(request, task_id):
+  task = get_object_or_404(Task, pk=task_id, user=request.user)
+  try:
+    if request.method == 'POST':
+      form = TaskForm(request.POST, instance = task)#obtiene todos los datos : request.POST
+      form.save()
+  except:
+    # if request.method == 'POST':
+    task.completed = timezone.now()
+    task.save()
+  return redirect('tasks')
 
 
 

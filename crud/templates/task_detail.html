@@ -16,12 +16,19 @@
     }, 5000);
   </script>
 
-  {% endif %} 
+  {% endif %}
 
   <form action="" method="POST">
     {% csrf_token %}
     {{form.as_p}}
     <button>Actualizar</button>
+  </form>
+
+  <br>
+
+  <form action="{% url 'completed_task' task.id %}" method="POST">
+    {% csrf_token %}
+    <button>Completada</button>
   </form>
 
 {% endblock %}

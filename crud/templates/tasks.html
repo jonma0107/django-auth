@@ -2,27 +2,32 @@
 
 {% block content%}
 
-<h1>TAREAS</h1>
+<h1>Tareas Pendientes</h1>
+
 
 <ul>
   {% for object in objects %}
   <li>
     <h1>Tarea: </h1>
+    {% if object.done %}
     <a href="{% url 'task_detail' object.id %}">
-      {% if object.important %}
-      <h2 style="color: red;"><b>{{object.title}}</b></h2>
-      {% else %}
-      <h2 style="color: green;"><b>{{object.title}}</b></h2>
-      {% endif %}
-    </a>  
+      <b style="color: green;">{{object.title}}</b>
+    </a>
+    {% else %}
+    <a href="{% url 'task_detail' object.id %}">
+      <p>{{object.title}}</p>
+    </a>
+
+    {% endif %}
+
     <h1>Descripcion: </h1>
     <a href="{% url 'task_detail' object.id %}">
       <p>{{object.description}}</p>
     </a>
     <h1>Autor: </h1>
     <p>{{object.user.username}}</p>
-    <p>{{object.important}}</p>
     
+
   </li>
   {% endfor %}
 </ul>
