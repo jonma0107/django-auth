@@ -3,16 +3,19 @@
 {% block content %}
 <h1>LOGIN</h1>
 
-{{error}}
+{% if error %}
+  <div id="error">{{error}}</div>
+  <script>
+    setTimeout(function() {
+      document.querySelector("#error").style.display = "none";
+    }, 5000);
+  </script>
+{% endif %}
 
-<form action="" method="POST">
+<form action="{% url 'signin' %}" method="POST">
   {% csrf_token %}
   {{form.as_p}}
-
-  <button>Entrar</button>
-
-
+  <button type="submit">Iniciar Sesión</button>
 </form>
-
 
 {% endblock %}

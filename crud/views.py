@@ -5,14 +5,25 @@ from django.contrib.auth import login, logout, authenticate
 from .forms import TaskForm
 from .models import *
 from django.utils import timezone
+# from datetime import date
+from django.contrib.auth.decorators import login_required
 
 def home(request):
   return render(request, 'home.html')
 
+@login_required
 def tasks(request):
   lista = Task.objects.filter(user=request.user, completed__isnull=True)
   return render(request, 'tasks.html', {'objects': lista})
 
+@login_required
+def tasks_completed(request):
+  lista = Task.objects.filter(user=request.user, completed__isnull=False).order_by('-completed')
+  # fecha = datetime.datetime.now() #sirve para tener fecha y hora en tiempo real, realizando previamente import datetime
+  # fecha = date.today()
+  return render(request, 'tasks_completed.html', {'completadas':lista})
+
+@login_required
 def create_task(request):
   if request.method == 'GET':
     return render(request, 'create_task.html', {
@@ -25,7 +36,6 @@ def create_task(request):
         'error': 'la descripción debe llenarse'
         })
       return create
-
     else:
       form = TaskForm(request.POST)
       task_new = form.save(commit=False)
@@ -48,12 +58,11 @@ def signup(request):
       except:
         return render(request, 'signup.html', {
           "form": UserCreationForm,
-          "error": 'usuario ya existe'
+          "error": 'El usuario ya existe'
           })
     return render(request, 'signup.html', {
       "form": UserCreationForm,
-      "error": 'contraseñas erradas'
-      })
+      "error": 'Las contraseñas no coinciden'})
 
 def close_sesion(request):
   logout(request)
@@ -73,6 +82,7 @@ def open_sesion(request):
       return redirect('tasks')
 
 # OBTENER y ACTUALIZAR TAREA
+@login_required
 def task_detail(request, task_id):
   if request.method == 'GET':
     # task = Task.objects.get(pk=task_id)
@@ -93,8 +103,9 @@ def task_detail(request, task_id):
         except ErrorValue:
           return render(request, 'task_detail.html', { 'task': task, 'form': form, 'error': 'Error al actualizar' })
 
-# TAREA COMPLETADA : ELIMINADA
-def completed_task(request, task_id):
+# TAREA HECHA : SE ELIMINA DE Tareas Pendientes
+@login_required
+def task_done(request, task_id):
   task = get_object_or_404(Task, pk=task_id, user=request.user)
   try:
     if request.method == 'POST':
@@ -105,6 +116,14 @@ def completed_task(request, task_id):
     task.completed = timezone.now()
     task.save()
   return redirect('tasks')
+
+@login_required
+def delete_task_completed(request, task_id):
+  task = get_object_or_404(Task, pk=task_id, user=request.user)
+  if request.method == 'POST':
+    task.delete()
+    return redirect('tasks_completed')
+
 
 
 
